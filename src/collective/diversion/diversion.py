@@ -17,7 +17,23 @@ def add_diversion(*args, **kwargs):
 def rebind_ClassFactory(db):
     old_ClassFactory = db.classFactory
     def ClassFactory(jar, module, name):
+        redirected = False
         if (module, name) in diversions:
+            redirected = True
             module, name = diversions[module, name]
-        return old_ClassFactory(jar, module, name)
+        kls = old_ClassFactory(jar, module, name)
+        if redirected:
+            # So, we got the class, but we want its instances to be reporting that it has changed, so it will get
+            # persisted into the database. What we REALLY don't want to happen, however, is that the location gets
+            # set here rather than the real, replacement class.
+            #
+            # This means that when you load an object with its old location the first usage will be an ephemeral class
+            # defined here that pretends to be the new one. Later loads will be just the new one.
+            # 
+            # Note: This trick probably won't work with non-persistent objects.
+            new_kls = type(kls.__name__, (kls,), {'_p_changed': 1})
+            new_kls.__module__ = kls.__module__
+            new_kls.__name__ = kls.__name__
+            kls = new_kls
+        return kls
     db.classFactory = ClassFactory

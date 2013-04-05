@@ -18,7 +18,17 @@ class Data(Persistent):
         # This method is just to check we have the real class, not just the data
         return self.name, self.data
 
-def get_class():
+class NPData(object):
+        
+    def __init__(self, name, data):
+        self.name = name
+        self.data = data
+    
+    def format(self):
+        # This method is just to check we have the real class, not just the data
+        return self.name, self.data
+
+def get_class(base=Data):
     classes = sorted((key for key in globals().keys() if key.startswith(TEST_CLASS_PREFIX)), reverse=True)
     
     try:
@@ -28,7 +38,7 @@ def get_class():
     newest_id = int(newest[len(TEST_CLASS_PREFIX):])
     
     new = TEST_CLASS_PREFIX + str(newest_id + 1)
-    globals()[new] = type(new, (Data,), {})
+    globals()[new] = type(new, (base,), {})
     return globals()[new]
 
 def break_class(name):
@@ -59,7 +69,6 @@ class TestZODB(unittest.TestCase):
         self.assertEqual(foo.name, "foo")
         self.assertEqual(foo.data, "bar")
         self.assertEqual(foo.format(), ("foo","bar"))
-        self.assertEqual(foo.__class__, kls)
     
     def test_breaking_a_class_causes_a_broken_object(self):
         root = self.layer['zodbRoot']
@@ -76,8 +85,7 @@ class TestZODB(unittest.TestCase):
             foo.data
         with self.assertRaises(AttributeError):
             foo.format()
-
-
+    
     def test_redirector_causes_broken_object_to_be_found(self):
         root = self.layer['zodbRoot']
         old = get_class()
@@ -93,10 +101,54 @@ class TestZODB(unittest.TestCase):
         self.assertEqual(foo.name, "foo")
         self.assertEqual(foo.data, "bar")
         self.assertEqual(foo.format(), ("foo","bar"))
-        self.assertEqual(foo.__class__, new)
+    
+    @unittest.expectedFailure
+    def test_once_loaded_the_first_time_the_new_path_is_used_forever(self):
+        root = self.layer['zodbRoot']
+        old = get_class()
+        new = get_class()
+        root['foo'] = old("foo", "bar")
+        transaction.commit()
         
-        unreleated = get_class()
-        self.assertNotEqual(foo.__class__, unreleated)
+        break_class(old)
+        diversion.add_diversion(old="collective.diversion.tests.test_translation.%s" % old.__name__, 
+                                new="collective.diversion.tests.test_translation.%s" % new.__name__)
+        
+        foo = self.get_idempotent_root()['foo']
+        # Commit in the new transaction, which should be transparently migrating
+        foo._p_jar.transaction_manager.commit()
+        
+        # Forcibly clear the diversion table, so if the database has the original location it will error
+        diversion.diversions.clear()
+        
+        foo = self.get_idempotent_root()['foo']
+        self.assertEqual(foo.name, "foo")
+        self.assertEqual(foo.data, "bar")
+        self.assertEqual(foo.format(), ("foo","bar"))
+    
+    @unittest.expectedFailure
+    def test_moving_non_persistent_objects_doesnt_cause_p_changed_setting_to_be_persisted(self):
+        root = self.layer['zodbRoot']
+        old = get_class(base=NPData)
+        new = get_class(base=NPData)
+        root['foo'] = old("foo", "bar")
+        self.assertFalse(hasattr(root['foo'], "_p_changed"))
+        transaction.commit()
+        
+        break_class(old)
+        diversion.add_diversion(old="collective.diversion.tests.test_translation.%s" % old.__name__, 
+                                new="collective.diversion.tests.test_translation.%s" % new.__name__)
+        
+        new_root = self.get_idempotent_root()
+        # Commit in the new transaction, which should be transparently migrating
+        new_root._p_jar.transaction_manager.commit()
+        
+        # We shouldn't have a _p_changed as this should be loading from the new location, not an ephemeral class
+        foo = self.get_idempotent_root()['foo']
+        self.assertFalse(hasattr(foo, "_p_changed"))
+        self.assertEqual(foo.name, "foo")
+        self.assertEqual(foo.data, "bar")
+        self.assertEqual(foo.format(), ("foo","bar"))
     
 
 class TestRedirector(unittest.TestCase):
