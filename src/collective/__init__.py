@@ -1,1 +1,6 @@
-<cheetah_DynamicallyCompiledCheetahTemplate_1365169201_6_70170.DynamicallyCompiledCheetahTemplate object at 0x0000000104e2a8e0>
+# See http://peak.telecommunity.com/DevCenter/setuptools#namespace-packages
+try:
+    __import__('pkg_resources').declare_namespace(__name__)
+except ImportError:
+    from pkgutil import extend_path
+    __path__ = extend_path(__path__, __name__)

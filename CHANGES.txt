@@ -1,1 +1,7 @@
-<DynamicallyCompiledCheetahTemplate.DynamicallyCompiledCheetahTemplate object at 0x0000000104e909f8>
+Changelog
+=========
+
+1.0 (Unreleased)
+----------------
+
+* nothing yet

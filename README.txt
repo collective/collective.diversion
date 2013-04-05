@@ -1,1 +1,0 @@
-<cheetah_DynamicallyCompiledCheetahTemplate_1365169201_52_50426.DynamicallyCompiledCheetahTemplate object at 0x0000000104e90ad8>

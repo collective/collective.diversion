@@ -1,1 +1,9 @@
-<cheetah_DynamicallyCompiledCheetahTemplate_1365169201_64_71301.DynamicallyCompiledCheetahTemplate object at 0x0000000104f52bf0>
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:five="http://namespaces.zope.org/five"
+    i18n_domain="collective.diversion">
+
+  <includeDependencies package="." />
+
+
+</configure>
