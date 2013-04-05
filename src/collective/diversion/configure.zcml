@@ -4,6 +4,8 @@
     i18n_domain="collective.diversion">
 
   <includeDependencies package="." />
+  
+  <five:registerPackage package="."  initialize=".initialize" />
 
 
 </configure>
