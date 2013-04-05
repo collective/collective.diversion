@@ -11,5 +11,7 @@ def add_diversion(old, new):
 def rebind_ClassFactory(db):
     old_ClassFactory = db.classFactory
     def ClassFactory(jar, module, name):
+        if (module, name) in diversions:
+            module, name = diversions[module, name]
         return old_ClassFactory(jar, module, name)
     db.classFactory = ClassFactory
