@@ -3,7 +3,7 @@ from persistent import Persistent
 from plone.testing.zodb import EmptyZODB
 import transaction
 
-from collective.diversion.diversion import add_diversion
+from collective.diversion import diversion
 
 TEST_CLASS_PREFIX = 'testing_data_class_'
 
@@ -35,7 +35,7 @@ def break_class(name):
         name = name.__name__
     del globals()[name]
     
-class TestSetup(unittest.TestCase):
+class TestZODB(unittest.TestCase):
     layer = EmptyZODB()
 
     def get_idempotent_root(self):
@@ -45,6 +45,8 @@ class TestSetup(unittest.TestCase):
 
     def setUp(self):
         self.conns = []
+        diversion.rebind_ClassFactory(self.layer['zodbDB'])
+        pass
     
     def test_creating_class(self):
         root = self.layer['zodbRoot']
@@ -83,11 +85,10 @@ class TestSetup(unittest.TestCase):
         transaction.commit()
 
         break_class(old)
-        add_diversion(old="collective.diversion.tests.test_translation.testing_data_class_1", 
-                      new="collective.diversion.tests.test_translation.testing_data_class_2")
+        diversion.add_diversion(old="collective.diversion.tests.test_translation.testing_data_class_1", 
+                                new="collective.diversion.tests.test_translation.testing_data_class_2")
         
         foo = self.get_idempotent_root()['foo']
-        import pdb; pdb.set_trace()
         self.assertEqual(foo.name, "foo")
         self.assertEqual(foo.data, "bar")
         self.assertEqual(foo.format(), ("foo","bar"))
@@ -97,7 +98,24 @@ class TestSetup(unittest.TestCase):
         self.assertNotEqual(foo.__class__, unreleated)
     
 
+class TestRedirector(unittest.TestCase):
+
+    def test_adding_path_adds_to_translation_table(self):
+        old_length = len(diversion.diversions)
+        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        new_length = len(diversion.diversions)
+        
+        self.assertEqual(old_length + 1, new_length)
+
+    def test_readding_exact_translation_is_a_noop(self):
+        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        old_translations = copy.copy(diversion.diversions)
+        
+        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        self.assertEqual(old_translations, diversion.diversions)
+
 def test_suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TestSetup))
+    suite.addTest(unittest.makeSuite(TestZODB))
+    suite.addTest(unittest.makeSuite(TestRedirector))
     return suite
