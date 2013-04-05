@@ -3,6 +3,8 @@ from persistent import Persistent
 from plone.testing.zodb import EmptyZODB
 import transaction
 
+from collective.diversion.diversion import add_diversion
+
 TEST_CLASS_PREFIX = 'testing_data_class_'
 
 class Data(Persistent):
@@ -54,6 +56,7 @@ class TestSetup(unittest.TestCase):
         self.assertEqual(foo.name, "foo")
         self.assertEqual(foo.data, "bar")
         self.assertEqual(foo.format(), ("foo","bar"))
+        self.assertEqual(foo.__class__, kls)
     
     def test_breaking_a_class_causes_a_broken_object(self):
         root = self.layer['zodbRoot']
@@ -70,8 +73,28 @@ class TestSetup(unittest.TestCase):
             foo.data
         with self.assertRaises(AttributeError):
             foo.format()
+
+
+    def test_redirector_causes_broken_object_to_be_found(self):
+        root = self.layer['zodbRoot']
+        old = get_class()
+        new = get_class()
+        root['foo'] = old("foo", "bar")
+        transaction.commit()
+
+        break_class(old)
+        add_diversion(old="collective.diversion.tests.test_translation.testing_data_class_1", 
+                      new="collective.diversion.tests.test_translation.testing_data_class_2")
         
+        foo = self.get_idempotent_root()['foo']
+        import pdb; pdb.set_trace()
+        self.assertEqual(foo.name, "foo")
+        self.assertEqual(foo.data, "bar")
+        self.assertEqual(foo.format(), ("foo","bar"))
+        self.assertEqual(foo.__class__, new)
         
+        unreleated = get_class()
+        self.assertNotEqual(foo.__class__, unreleated)
     
 
 def test_suite():
