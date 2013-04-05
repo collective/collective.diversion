@@ -1,0 +1,6 @@
+language: python
+python: "2.7"
+install:
+  - python bootstrap.py -c buildout.cfg
+  - bin/buildout -c buildout.cfg -t 3
+script: bin/test
