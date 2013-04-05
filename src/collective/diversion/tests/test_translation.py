@@ -1,3 +1,4 @@
+import copy
 import unittest2 as unittest
 from persistent import Persistent
 from plone.testing.zodb import EmptyZODB
@@ -113,7 +114,14 @@ class TestRedirector(unittest.TestCase):
         
         diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
         self.assertEqual(old_translations, diversion.diversions)
-
+            
+    def test_readding_differing_translation_causes_error(self):
+        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        old_translations = copy.copy(diversion.diversions)
+        
+        with self.assertRaises(ValueError):
+            diversion.add_diversion("foo.bar.baz", "example.spam.chips")
+    
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestZODB))
