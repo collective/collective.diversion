@@ -84,10 +84,10 @@ class TestZODB(unittest.TestCase):
         new = get_class()
         root['foo'] = old("foo", "bar")
         transaction.commit()
-
+        
         break_class(old)
-        diversion.add_diversion(old="collective.diversion.tests.test_translation.testing_data_class_1", 
-                                new="collective.diversion.tests.test_translation.testing_data_class_2")
+        diversion.add_diversion(old="collective.diversion.tests.test_translation.%s" % old.__name__, 
+                                new="collective.diversion.tests.test_translation.%s" % new.__name__)
         
         foo = self.get_idempotent_root()['foo']
         self.assertEqual(foo.name, "foo")
