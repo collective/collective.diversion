@@ -4,6 +4,8 @@ def add_diversion(old, new):
     old = tuple(old.rsplit(".", 1))
     new = tuple(new.rsplit(".", 1))
     if old in diversions:
+        if diversions[old] == new:
+            return
         data = {'old': ".".join(old), 'first': ".".join(diversions[old]), 'second': ".".join(new), }
         raise ValueError("Two redirects added for %(old)s: \n%(first)s \nand \n%(second)s" % data)
     diversions[old] = new
