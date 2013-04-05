@@ -1,6 +1,10 @@
 diversions = {}
 
-def add_diversion(old, new):
+def add_diversion(*args, **kwargs):
+    if 'old' not in kwargs or 'new' not in kwargs:
+        raise ValueError("You must provide new and old locations as dotted names")
+    old = kwargs['old']
+    new = kwargs['new']
     old = tuple(old.rsplit(".", 1))
     new = tuple(new.rsplit(".", 1))
     if old in diversions:

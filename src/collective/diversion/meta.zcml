@@ -1,0 +1,12 @@
+<configure 
+    xmlns="http://namespaces.zope.org/meta"> 
+ 
+    <directives namespace="http://namespaces.plone.org/diversion">
+        <directive 
+            name="class"
+            schema=".metadirectives.IClassDiversion"
+            handler=".diversion.add_diversion"
+            /> 
+    </directives> 
+  
+</configure>

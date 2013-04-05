@@ -103,24 +103,24 @@ class TestRedirector(unittest.TestCase):
 
     def test_adding_path_adds_to_translation_table(self):
         old_length = len(diversion.diversions)
-        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        diversion.add_diversion(old="foo.bar.baz", new="example.spam.eggs")
         new_length = len(diversion.diversions)
         
         self.assertEqual(old_length + 1, new_length)
 
     def test_readding_exact_translation_is_a_noop(self):
-        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        diversion.add_diversion(old="foo.bar.baz", new="example.spam.eggs")
         old_translations = copy.copy(diversion.diversions)
         
-        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        diversion.add_diversion(old="foo.bar.baz", new="example.spam.eggs")
         self.assertEqual(old_translations, diversion.diversions)
             
     def test_readding_differing_translation_causes_error(self):
-        diversion.add_diversion("foo.bar.baz", "example.spam.eggs")
+        diversion.add_diversion(old="foo.bar.baz", new="example.spam.eggs")
         old_translations = copy.copy(diversion.diversions)
         
         with self.assertRaises(ValueError):
-            diversion.add_diversion("foo.bar.baz", "example.spam.chips")
+            diversion.add_diversion(old="foo.bar.baz", new="example.spam.chips")
     
 def test_suite():
     suite = unittest.TestSuite()

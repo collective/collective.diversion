@@ -12,7 +12,7 @@ Simply include the following ZCML declaration in your code::
 
     <configure
         xmlns="http://namespaces.zope.org/zope"
-        xmlns:five="http://namespaces.plone.org/diversion">
+        xmlns:diversion="http://namespaces.plone.org/diversion">
 
         <diversion:class
             from="Products.example.oldlocation"
