@@ -1,0 +1,8 @@
+*.egg
+*.egg-info
+*.pyc
+parts
+develop-eggs
+eggs
+bin
+buildout-cache/downloads
