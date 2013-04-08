@@ -45,10 +45,7 @@ class TestZCML(unittest.TestCase):
             </configure>
             
         """, context=context)
-        try:
-            self.assertEqual(diversion.diversions, {('Products.example', 'oldlocation'): ('collective.example', 'shiny')})
-        finally:
-            del self.layer['configurationContext']
+        self.assertEqual(diversion.diversions['Products.example', 'oldlocation'], ('collective.example', 'shiny'))
         
     
     def test_loading_zcml_wraps_classFactory(self):
