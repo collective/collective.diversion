@@ -98,6 +98,28 @@ class TestZODB(unittest.TestCase):
         unreleated = get_class()
         self.assertNotEqual(foo.__class__, unreleated)
     
+    def test_redirector_still_loaded_in_connections_that_were_opened_before_patchin(self):
+        root = self.layer['zodbRoot']
+        old = get_class()
+        new = get_class()
+        
+        new_root = self.get_idempotent_root()
+        new_root['foo'] = old("foo", "bar")
+        new_root._p_jar.transaction_manager.commit()
+        
+        break_class(old)
+        diversion.add_diversion(old="collective.diversion.tests.test_translation.%s" % old.__name__,
+                                new="collective.diversion.tests.test_translation.%s" % new.__name__)
+        
+        foo = root['foo']
+        self.assertEqual(foo.name, "foo")
+        self.assertEqual(foo.data, "bar")
+        self.assertEqual(foo.format(), ("foo","bar"))
+        self.assertEqual(foo.__class__, new)
+        
+        unreleated = get_class()
+        self.assertNotEqual(foo.__class__, unreleated)
+    
 
 class TestRedirector(unittest.TestCase):
 
