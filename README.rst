@@ -5,6 +5,9 @@ collective.diversion wraps the existing behaviour for broken objects in the ZODB
 be processed in advance of passing down requests. This allows developers to declare old locations of their classes and
 have them be automatically and seamlessly migrated to the new code on load.
 
+.. image:: https://secure.travis-ci.org/collective/collective.diversion.png?branch=master
+   :target: http://travis-ci.org/collective/collective.diversion
+
 Usage
 -----
 
