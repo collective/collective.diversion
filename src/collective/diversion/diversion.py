@@ -20,4 +20,11 @@ def rebind_ClassFactory(db):
         if (module, name) in diversions:
             module, name = diversions[module, name]
         return old_ClassFactory(jar, module, name)
+
+    def rebind_ObjectReader(connection):
+        """Connections set up ObjectReaders on init which cache a reference to the classfactory. We are binding later
+        so we try to recreate these objectreader objects to use the new factory"""
+        connection._reader._factory = ClassFactory
+
+    db.pool.all.map(rebind_ObjectReader)
     db.classFactory = ClassFactory
