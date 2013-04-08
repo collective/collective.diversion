@@ -15,8 +15,8 @@ Simply include the following ZCML declaration in your code::
         xmlns:diversion="http://namespaces.plone.org/diversion">
 
         <diversion:class
-            from="Products.example.oldlocation"
-            to="collective.example.shiny"
+            old="Products.example.oldlocation"
+            new="collective.example.shiny"
             />
 
     </configure>
