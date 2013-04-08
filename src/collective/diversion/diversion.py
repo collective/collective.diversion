@@ -25,6 +25,14 @@ def rebind_ClassFactory(db):
         """Connections set up ObjectReaders on init which cache a reference to the classfactory. We are binding later
         so we try to recreate these objectreader objects to use the new factory"""
         connection._reader._factory = ClassFactory
-
-    db.pool.all.map(rebind_ObjectReader)
+    
+    # Zope 2.13 has .pool
+    if hasattr(db, 'pool'):
+        db.pool.all.map(rebind_ObjectReader)
+        
+    # Zope 2.10 has ._pools
+    elif hasattr(db, '_pools'):
+        for pool in db._pools.values():
+            pool.all.map(rebind_ObjectReader)
+    
     db.classFactory = ClassFactory
