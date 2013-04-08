@@ -1,17 +1,26 @@
 import unittest2 as unittest
 
-from plone.app.testing.layers import PLONE_INTEGRATION_TESTING
+from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import PLONE_FIXTURE
+#from plone.app.testing import IntegrationTesting
+from plone.testing import z2
 from plone.testing import zca
-from plone.testing import Layer
 
-import collective.diversion
 from collective.diversion import diversion
 
-ZCML_SANDBOX = zca.ZCMLSandbox(filename="meta.zcml", package=collective.diversion)
+class DiversionLayer(PloneSandboxLayer):
 
+    defaultBases = (PLONE_FIXTURE,)
 
-class DiversionLayer(Layer):    
-    defaultBases = (ZCML_SANDBOX, PLONE_INTEGRATION_TESTING)
+    def setUpZope(self, app, configurationContext):
+        import collective.diversion
+        self.loadZCML(package=collective.diversion)
+        
+        # Install product and call its initialize() function
+        z2.installProduct(app, 'collective.diversion')
+    
+    def tearDownZope(self, app):
+        z2.uninstallProduct(app, 'collective.diversion')
     
 
 class TestZCML(unittest.TestCase):
@@ -36,8 +45,11 @@ class TestZCML(unittest.TestCase):
             </configure>
             
         """, context=context)
-
-        self.assertEqual(diversion.diversions, {('Products.example', 'oldlocation'): ('collective.example', 'shiny')})
+        try:
+            self.assertEqual(diversion.diversions, {('Products.example', 'oldlocation'): ('collective.example', 'shiny')})
+        finally:
+            del self.layer['configurationContext']
+        
     
 
 def test_suite():
