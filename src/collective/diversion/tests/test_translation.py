@@ -120,6 +120,44 @@ class TestZODB(unittest.TestCase):
         unreleated = get_class()
         self.assertNotEqual(foo.__class__, unreleated)
     
+    def test_redirected_objects_persist_as_their_new_class(self):
+        root = self.layer['zodbRoot']
+        old = get_class()
+        new = get_class()
+        
+        # Create an (old) object
+        root['foo'] = old("foo","bar")
+        transaction.commit()
+        
+        # Install the diversion
+        break_class(old)
+        diversion.add_diversion(old="collective.diversion.tests.test_translation.%s" % old.__name__,
+                                new="collective.diversion.tests.test_translation.%s" % new.__name__)
+        
+        # Load the redirected object
+        root = self.get_idempotent_root()
+        foo = root['foo']
+        
+        # Modify the redirected object causing it to be re-serialised, this could also
+        # be achieved by setting _p_changed, but this is closer to a real world case.
+        foo.data = "horses"
+        transaction.commit()
+
+        # Keep a reference to the object oid so we can confirm it's correct (see below)
+        oid = foo._p_oid
+
+        # Remove the diversions
+        diversion.diversions.clear()
+
+        # References to persistent objects are normally stored along with a 
+        # named reference to their class.  This means we can't load the object
+        # via the root as it still contains a reference to the old class.  Instead,
+        # we load the object up directly via oid.
+        connection = self.layer['zodbDB'].open()
+        foo = connection.get(oid)
+
+        self.assertEqual(foo.__class__,new)
+    
 
 class TestRedirector(unittest.TestCase):
 
