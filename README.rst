@@ -24,3 +24,7 @@ Simply include the following ZCML declaration in your code::
 
     </configure>
 
+Caveats
+-------
+
+Diverted classes will persist their new class when they are written.  However, when ZODB stores references to persistent objects it stores both the oid and the name of the class.  Those class name references will only be updated when the persistent object they are attached to is re-serialised (modified).  Unfortunately this package cannot do this for you as there is no way to find the set of objects which reference a particular object (quickly).  You'll have to leave the diversion directives in your package until you can confirm that all instances and all references have been updated.
