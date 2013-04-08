@@ -3,8 +3,6 @@
     xmlns:five="http://namespaces.zope.org/five"
     i18n_domain="collective.diversion">
 
-  <includeDependencies package="." />
-  
   <five:registerPackage package="."  initialize=".initialize" />
 
   <include file="meta.zcml" />
