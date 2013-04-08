@@ -98,7 +98,7 @@ class TestZODB(unittest.TestCase):
         unreleated = get_class()
         self.assertNotEqual(foo.__class__, unreleated)
     
-    def test_redirector_still_loaded_in_connections_that_were_opened_before_patchin(self):
+    def test_redirector_still_loaded_in_connections_that_were_opened_before_patching(self):
         root = self.layer['zodbRoot']
         old = get_class()
         new = get_class()
