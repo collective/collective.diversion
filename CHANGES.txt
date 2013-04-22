@@ -4,4 +4,6 @@ Changelog
 1.0 (Unreleased)
 ----------------
 
-* nothing yet
+* Rebind the class factory to existing DB connections on initialization [MatthewWilkes]
+* ZCML declaration to register diversions
+* Implementation of classFactory that uses diversions 
