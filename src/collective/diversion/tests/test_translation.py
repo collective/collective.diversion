@@ -11,8 +11,12 @@ TEST_CLASS_PREFIX = 'testing_data_class_'
 class Data(Persistent):
         
     def __init__(self, name, data):
-        self.name = name
+        self.id = name
         self.data = data
+    
+    @property
+    def name(self):
+        return self.id
     
     def format(self):
         # This method is just to check we have the real class, not just the data
