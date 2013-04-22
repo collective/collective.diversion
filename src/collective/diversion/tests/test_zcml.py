@@ -1,27 +1,9 @@
 import unittest2 as unittest
 
-from plone.app.testing import PloneSandboxLayer
-from plone.app.testing import PLONE_FIXTURE
-#from plone.app.testing import IntegrationTesting
-from plone.testing import z2
 from plone.testing import zca
 
 from collective.diversion import diversion
-
-class DiversionLayer(PloneSandboxLayer):
-
-    defaultBases = (PLONE_FIXTURE,)
-
-    def setUpZope(self, app, configurationContext):
-        import collective.diversion
-        self.loadZCML(package=collective.diversion)
-        
-        # Install product and call its initialize() function
-        z2.installProduct(app, 'collective.diversion')
-    
-    def tearDownZope(self, app):
-        z2.uninstallProduct(app, 'collective.diversion')
-    
+from collective.diversion.tests import DiversionLayer
 
 class TestZCML(unittest.TestCase):
     layer = DiversionLayer()

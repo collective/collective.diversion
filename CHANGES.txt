@@ -4,6 +4,9 @@ Changelog
 1.0 (Unreleased)
 ----------------
 
-* Rebind the class factory to existing DB connections on initialization [MatthewWilkes]
+* Overrides the cPickle.Unpickler class in ZODB ExportImport to allow for copy/paste as well as export.
+  (MatthewWilkes)
+* Rebind the class factory to existing DB connections on initialization
+  (MatthewWilkes)
 * ZCML declaration to register diversions
 * Implementation of classFactory that uses diversions 
