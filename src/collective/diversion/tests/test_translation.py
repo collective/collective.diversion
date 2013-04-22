@@ -22,7 +22,7 @@ class Data(Persistent):
         # This method is just to check we have the real class, not just the data
         return self.name, self.data
 
-def get_class():
+def get_class(bases=None):
     classes = sorted((key for key in globals().keys() if key.startswith(TEST_CLASS_PREFIX)), reverse=True)
     
     try:
@@ -32,7 +32,11 @@ def get_class():
     newest_id = int(newest[len(TEST_CLASS_PREFIX):])
     
     new = TEST_CLASS_PREFIX + str(newest_id + 1)
-    globals()[new] = type(new, (Data,), {})
+    if bases is None:
+        bases = (Data, )
+    else:
+        bases = (Data, ) + tuple(bases)
+    globals()[new] = type(new, bases, {})
     return globals()[new]
 
 def break_class(name):
