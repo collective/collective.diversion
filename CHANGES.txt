@@ -4,4 +4,5 @@ Changelog
 1.0 (Unreleased)
 ----------------
 
-* nothing yet
+* Overrides the cPickle.Unpickler class in ZODB ExportImport to allow for copy/paste as well as export.
+  (MatthewWilkes)

@@ -1,5 +1,6 @@
 from App.config import getConfiguration
-from collective.diversion.diversion import rebind_ClassFactory
+from collective.diversion.diversion import DivertingUnpickler, rebind_ClassFactory
+from cPickle import Unpickler
 
 def initialize(registrar):
     # The ZMI keeps track of what ZODBs have been opened under what names for its Databases tab, grab those DB objects
@@ -13,4 +14,7 @@ def initialize(registrar):
             pass
         # Switch out the function for resolving a class from an import location with our wrapper
         rebind_ClassFactory(db)
+    
+    import ZODB.ExportImport
+    ZODB.ExportImport.Unpickler = DivertingUnpickler
     

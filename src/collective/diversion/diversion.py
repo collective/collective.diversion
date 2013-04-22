@@ -1,3 +1,6 @@
+from pickle import Unpickler
+from ZODB.broken import find_global
+
 diversions = {}
 
 def add_diversion(*args, **kwargs):
@@ -13,6 +16,13 @@ def add_diversion(*args, **kwargs):
         data = {'old': ".".join(old), 'first': ".".join(diversions[old]), 'second': ".".join(new), }
         raise ValueError("Two redirects added for %(old)s: \n%(first)s \nand \n%(second)s" % data)
     diversions[old] = new
+
+class DivertingUnpickler(Unpickler):
+    
+    def find_class(self, module, name):
+        if (module, name) in diversions:
+            module, name = diversions[module, name]
+        return find_global(module, name)
 
 def rebind_ClassFactory(db):
     old_ClassFactory = db.classFactory
